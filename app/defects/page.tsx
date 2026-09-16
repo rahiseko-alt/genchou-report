@@ -58,7 +58,9 @@ function DefectsScreen() {
     )
   }
 
-  const page = genchouCase.defectPages[pageIndex] ?? genchouCase.defectPages[0]
+  // URL に無いページ番号で開かれても、見出しと中身が食い違わないようにする。
+  const safePageIndex = Math.min(Math.max(pageIndex, 0), genchouCase.defectPages.length - 1)
+  const page = genchouCase.defectPages[safePageIndex]
   const readiness = finishReadiness(genchouCase)
 
   const markFailed = (frameIndex: number, failed: boolean) =>
@@ -74,7 +76,7 @@ function DefectsScreen() {
     try {
       const photo = await importPhoto(file)
       // 取り込みの間に別の枠が埋まっていることがある。最新の案件から組み立てる。
-      update((current) => withDefectPhoto(current, pageIndex, frameIndex, photo))
+      update((current) => withDefectPhoto(current, safePageIndex, frameIndex, photo))
     } catch {
       markFailed(frameIndex, true)
     }
@@ -96,24 +98,24 @@ function DefectsScreen() {
     <main className={styles.main}>
       <header className={styles.head}>
         <h1 className={styles.title}>不具合写真</h1>
-        <p className={styles.pageNumber}>{pageIndex + 1} ページ目</p>
+        <p className={styles.pageNumber}>{safePageIndex + 1} ページ目</p>
       </header>
 
       <div className={styles.frames}>
         {page.map((entry, frameIndex) => (
           <DefectFrame
             // 枠は4つで固定、並び順がそのまま報告書の順になる。
-            key={`${pageIndex}-${frameIndex}`}
+            key={`${safePageIndex}-${frameIndex}`}
             position={frameIndex + 1}
             entry={entry}
             failed={failedFrames.has(frameIndex)}
             onPick={(file) => void pick(frameIndex, file)}
-            onRemove={() => update((current) => withoutDefectPhoto(current, pageIndex, frameIndex))}
+            onRemove={() => update((current) => withoutDefectPhoto(current, safePageIndex, frameIndex))}
             onToggleStatus={(status: StatusId) =>
-              update((current) => toggleDefectStatus(current, pageIndex, frameIndex, status))
+              update((current) => toggleDefectStatus(current, safePageIndex, frameIndex, status))
             }
             onNote={(note) =>
-              update((current) => withDefectNote(current, pageIndex, frameIndex, note))
+              update((current) => withDefectNote(current, safePageIndex, frameIndex, note))
             }
           />
         ))}
@@ -139,11 +141,11 @@ function DefectsScreen() {
         </button>
 
         <div className={styles.pageButtons}>
-          {pageIndex > 0 && (
+          {safePageIndex > 0 && (
             <button
               type="button"
               className={styles.pageButton}
-              onClick={() => goToPage(pageIndex - 1)}
+              onClick={() => goToPage(safePageIndex - 1)}
             >
               ページ戻る
             </button>
@@ -151,7 +153,7 @@ function DefectsScreen() {
           <button
             type="button"
             className={styles.pageButton}
-            disabled={!canAddDefectPage(genchouCase) || pageIndex !== genchouCase.defectPages.length - 1}
+            disabled={!canAddDefectPage(genchouCase) || safePageIndex !== genchouCase.defectPages.length - 1}
             onClick={() => {
               update(addDefectPage)
               goToPage(genchouCase.defectPages.length)
@@ -161,7 +163,7 @@ function DefectsScreen() {
           </button>
         </div>
 
-        {!canAddDefectPage(genchouCase) && pageIndex === genchouCase.defectPages.length - 1 && (
+        {!canAddDefectPage(genchouCase) && safePageIndex === genchouCase.defectPages.length - 1 && (
           <p className={styles.hint}>
             {DEFECT_FRAMES_PER_PAGE}枠すべて埋めるとページを足せます
           </p>

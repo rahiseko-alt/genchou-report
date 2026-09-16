@@ -6,7 +6,7 @@
  */
 export const APP_NAME = '現調報告書'
 export const APP_SHORT_NAME = '現調報告'
-export const APP_DESCRIPTION = '現調の写真と所見を、その場で報告書にまとめて会社へ送る'
+export const APP_DESCRIPTION = '現調の写真とコメントを、その場で報告書にまとめて会社へ送る'
 
 /** 見出しとスタートボタンの濃紺。`--brand` と同じ値。 */
 export const BRAND_COLOR = '#1f3a5f'

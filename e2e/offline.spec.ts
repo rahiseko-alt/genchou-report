@@ -12,6 +12,9 @@ async function shoot(page: Page, position: number, file: string, label: string) 
   await expect(page.getByRole('img', { name: `${label} ${position}枚目` })).toBeVisible()
 }
 
+// 控えの仕組みそのものの振る舞いは src/pwa/sw-source.test.ts で確かめる。
+// 開発サーバーでは登録しないため（作りかけの画面が控えに残ると紛らわしい）、
+// ここでは配られ方と、圏外での画面の見え方だけを見る。
 test('控えの仕組みが版つきで配られる', async ({ request }) => {
   const response = await request.get('/sw.js')
 
@@ -22,13 +25,6 @@ test('控えの仕組みが版つきで配られる', async ({ request }) => {
   // 版が差し込まれ、雛形のままではない
   expect(source).not.toContain('__BUILD_ID__')
   expect(source).toMatch(/genchou-report-/)
-})
-
-test('控えの仕組みは、送付だけは網に通す', async ({ request }) => {
-  const source = await (await request.get('/sw.js')).text()
-
-  // 送付を控えから返してしまうと、送ったつもりで届かない
-  expect(source).toContain("url.pathname.startsWith('/api/')")
 })
 
 test('圏外でも、入力した内容は端末に残って続きから開ける', async ({ page, context }) => {

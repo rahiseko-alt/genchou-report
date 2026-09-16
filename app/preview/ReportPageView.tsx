@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import type { Photo } from '@/src/domain'
-import type { ReportPage } from '@/src/report/layout'
+import { DEFECTS_PER_REPORT_PAGE, type ReportPage } from '@/src/report/layout'
+import { metricsAsPercentOfContentWidth } from '@/src/report/metrics'
 import styles from './page.module.css'
 
 /** 写真のバイト列を、画面に出せる入れ物に変える。外れたら必ず片づける。 */
@@ -32,12 +33,25 @@ function usePhotoUrls(photos: Photo[]): Map<string, string> {
  * 割り付け（どのページに何がどの順で載るか）は PDF と同じものを読む。
  * 字体や行の折り返しまでは一致しない（docs/adr/0002）。
  */
+/**
+ * 寸法は PDF と同じものを読み、用紙の内側の幅に対する割合として流し込む。
+ * ここに数字を書き足さない（src/report/metrics.ts が唯一の置き場所）。
+ */
+const METRICS = metricsAsPercentOfContentWidth()
+const SHEET_STYLE = Object.fromEntries(
+  Object.entries(METRICS).map(([name, value]) => [`--${name}`, `${value}cqw`]),
+) as React.CSSProperties
+
 export function ReportPageView({ page, pageCount }: { page: ReportPage; pageCount: number }) {
   const photos = [...page.exterior, ...page.defects.map((entry) => entry.photo)]
   const urls = usePhotoUrls(photos)
 
   return (
-    <section className={styles.sheet} aria-label={`報告書 ${page.number}ページ目`}>
+    <section
+      className={styles.sheet}
+      style={SHEET_STYLE}
+      aria-label={`報告書 ${page.number}ページ目`}
+    >
       {page.heading !== null && (
         <header className={styles.sheetHead}>
           <h2 className={styles.sheetTitle}>現調報告書</h2>
@@ -87,7 +101,7 @@ export function ReportPageView({ page, pageCount }: { page: ReportPage; pageCoun
                 <img
                   className={styles.defectPhoto}
                   src={urls.get(entry.photo.id)}
-                  alt={`不具合写真 ${(page.number - 1) * 4 + index + 1}枚目`}
+                  alt={`不具合写真 ${(page.number - 1) * DEFECTS_PER_REPORT_PAGE + index + 1}枚目`}
                 />
                 <figcaption className={styles.defectCaption}>
                   {entry.statuses.length > 0 && (

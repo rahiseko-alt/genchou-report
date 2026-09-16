@@ -4,6 +4,7 @@ import fontkit from '@pdf-lib/fontkit'
 import { type PDFFont, type PDFImage, PDFDocument, type PDFPage, rgb } from 'pdf-lib'
 import type { DefectEntry, Photo } from '@/src/domain'
 import { type ReportPage, type ReportPlan, planReport } from './layout'
+import { A4, REPORT_METRICS } from './metrics'
 import type { GenchouCase } from '@/src/domain'
 
 /**
@@ -12,26 +13,16 @@ import type { GenchouCase } from '@/src/domain'
  * サーバーでのみ動く。日本語のフォントが 6MB あり、端末へ配らないため（docs/adr/0002）。
  */
 
-const A4 = { width: 595.28, height: 841.89 }
-const MARGIN = 32
-const FOOTER_HEIGHT = 24
-const GAP = 10
-
-/**
- * 高さの配分は決め打ちにする。
- *
- * ページごとに残りの高さから割り出すと、1ページ目（顧客情報と外観がある）と
- * 2ページ目以降で不具合写真の大きさが変わり、体裁が揃わない。
- * 一番窮屈な1ページ目に合わせ、全ページで同じ大きさにする。
- *
- * 外観を不具合より小さくしているのは、報告書の中身は不具合のほうだから。
- */
-const HEADING_HEIGHT = 85
-const SECTION_TITLE_HEIGHT = 18
-const EXTERIOR_CELL_HEIGHT = 115
-const DEFECT_PHOTO_HEIGHT = 150
-/** 不具合写真の下に置くステータスと補足のぶん。 */
-const DEFECT_TEXT_HEIGHT = 32
+const {
+  margin: MARGIN,
+  gap: GAP,
+  footerHeight: FOOTER_HEIGHT,
+  headingHeight: HEADING_HEIGHT,
+  sectionTitleHeight: SECTION_TITLE_HEIGHT,
+  exteriorCellHeight: EXTERIOR_CELL_HEIGHT,
+  defectPhotoHeight: DEFECT_PHOTO_HEIGHT,
+  defectTextHeight: DEFECT_TEXT_HEIGHT,
+} = REPORT_METRICS
 
 const INK = rgb(0.106, 0.114, 0.129)
 const MUTED = rgb(0.361, 0.384, 0.439)

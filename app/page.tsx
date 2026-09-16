@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCaseStore } from '@/src/case-store'
+import { resumeHref } from '@/src/resume'
 import styles from './page.module.css'
 
 export default function TopPage() {
@@ -34,7 +35,11 @@ export default function TopPage() {
               ? '作りかけの報告書があります'
               : `作りかけの報告書があります（${genchouCase.customer.customerName} 様）`}
           </p>
-          <button type="button" className={styles.resume} onClick={() => router.push('/customer')}>
+          <button
+            type="button"
+            className={styles.resume}
+            onClick={() => router.push(resumeHref(genchouCase))}
+          >
             続きから
           </button>
           <button

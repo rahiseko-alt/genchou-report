@@ -35,6 +35,32 @@ export async function importPhoto(
 }
 
 /**
+ * すでに取り込んだ写真を、低い画質で入れ直す。
+ *
+ * 送り出す中身が上限に収まらないときに使う。もとのファイルはもう手元に無いので、
+ * 取り込み済みの JPEG を読み直して入れ直す。大きさは変えない。
+ */
+export async function reencodePhoto(photo: Photo, quality: JpegQuality): Promise<Photo> {
+  const file = new File([photo.jpeg], `${photo.id}.jpg`, { type: 'image/jpeg' })
+  const source = await decode(file)
+
+  const canvas = document.createElement('canvas')
+  canvas.width = photo.width
+  canvas.height = photo.height
+
+  const context = canvas.getContext('2d')
+  if (context === null) throw new Error('写真を描き直せない')
+  context.drawImage(source, 0, 0, photo.width, photo.height)
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/jpeg', quality),
+  )
+  if (blob === null) throw new Error('写真を保存できない')
+
+  return { ...photo, jpeg: new Uint8Array(await blob.arrayBuffer()), quality }
+}
+
+/**
  * 画像を、撮ったときの向きのまま読み取る。
  *
  * スマートフォンの写真は、横向きに保存して「右に90度回して見せる」という

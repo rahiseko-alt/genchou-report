@@ -36,7 +36,7 @@ export type ExteriorFrames = [Frame, Frame, Frame, Frame]
 
 export const EXTERIOR_FRAME_COUNT = 4
 
-/** 不具合写真1枚と、それに付けた所見。 */
+/** 不具合写真1枚と、それに付けたステータスと補足。 */
 export type DefectEntry = {
   photo: Photo
   /** 押した順に並ぶ。同じものを二度押すと外れる。 */
@@ -192,7 +192,7 @@ export function withDefectPhoto(
   frameIndex: number,
   photo: Photo,
 ): GenchouCase {
-  // 写真を入れ替えても、すでに付けた所見は残す。
+  // 写真を入れ替えても、すでに付けたステータスと補足は残す。
   return reviseDefectFrame(genchouCase, pageIndex, frameIndex, (current) => ({
     photo,
     statuses: current?.statuses ?? [],

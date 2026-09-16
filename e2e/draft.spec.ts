@@ -70,7 +70,25 @@ test('トップに戻ると、続きからと新しく始めるが出る', async
   await expect(page.getByText('作りかけの報告書があります（山田 太郎 様）')).toBeVisible()
   await page.getByRole('button', { name: '続きから' }).click()
 
-  await expect(page.getByLabel('顧客名')).toHaveValue('山田 太郎')
+  // 顧客名は入っているので、まだ足りない外観の画面から続く
+  await expect(page).toHaveURL(/\/exterior$/)
+  await expect(page.getByText('0 / 4 枚')).toBeVisible()
+})
+
+test('続きからは、まだ足りない画面へ直に戻る', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'スタート' }).click()
+  await page.getByLabel('顧客名').fill('山田')
+  await page.getByRole('button', { name: '次へ' }).click()
+  for (const position of [1, 2, 3, 4]) await shoot(page, position, WIDE, '外観写真')
+  await page.getByRole('button', { name: '次へ' }).click()
+  await shoot(page, 1, DEFECT_A, '不具合写真')
+
+  // ここまで入っていれば、完成プレビューまで一足で戻れる
+  await page.goto('/')
+  await page.getByRole('button', { name: '続きから' }).click()
+
+  await expect(page).toHaveURL(/\/preview$/)
 })
 
 test('新しく始めるを選ぶと、確かめてから下書きを捨てる', async ({ page }) => {

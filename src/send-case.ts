@@ -1,4 +1,5 @@
-import type { GenchouCase } from '@/src/domain'
+import type { GenchouCase, Photo } from '@/src/domain'
+import type { SerializedCase, SerializedPhoto } from '@/src/api/parse-case'
 
 /**
  * 案件をサーバーへ送り出す。
@@ -11,9 +12,9 @@ export type SendResult =
   | { ok: true; fileName: string; pageCount: number }
   | { ok: false; message: string }
 
-export type SendState = 'idle' | 'sending' | 'sent' | 'failed'
+export type SendState = 'idle' | 'shrinking' | 'sending' | 'sent' | 'failed'
 
-export function serializeCase(genchouCase: GenchouCase) {
+export function serializeCase(genchouCase: GenchouCase): SerializedCase {
   return {
     customer: genchouCase.customer,
     exteriorFrames: genchouCase.exteriorFrames.map((frame) =>
@@ -29,7 +30,7 @@ export function serializeCase(genchouCase: GenchouCase) {
   }
 }
 
-function serializePhoto(photo: { id: string; jpeg: Uint8Array; quality: number; width: number; height: number }) {
+function serializePhoto(photo: Photo): SerializedPhoto {
   return {
     id: photo.id,
     jpeg: toBase64(photo.jpeg),
@@ -47,16 +48,6 @@ function toBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(index, index + CHUNK))
   }
   return btoa(binary)
-}
-
-/** 送り出す中身のおおよその大きさ。base64 にすると約 4/3 に膨らむ。 */
-export function estimateUploadBytes(genchouCase: GenchouCase): number {
-  const photos = [
-    ...genchouCase.exteriorFrames.filter((frame) => frame !== null),
-    ...genchouCase.defectPages.flat().filter((frame) => frame !== null).map((frame) => frame.photo),
-  ]
-  const jpegBytes = photos.reduce((total, photo) => total + photo.jpeg.length, 0)
-  return Math.ceil(jpegBytes * 1.34)
 }
 
 export async function sendCase(genchouCase: GenchouCase): Promise<SendResult> {
@@ -92,6 +83,7 @@ function isSuccess(outcome: unknown): outcome is { fileName: string; pageCount: 
 function messageFor(status: number): string {
   if (status === 503) return '送り先がまだ設定されていません。管理者に連絡してください'
   if (status === 413) return '写真が重すぎて送れませんでした。枚数を減らしてお試しください'
+  if (status === 422) return '報告書を組み立てられませんでした。写真を撮り直してお試しください'
   if (status === 400) return '報告書の中身に足りないところがあります'
   return '送れませんでした。もう一度お試しください'
 }

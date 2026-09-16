@@ -53,7 +53,10 @@ async function withStore<T>(
     return await new Promise<T>((resolve, reject) => {
       const transaction = database.transaction(STORE, mode)
       const request = use(transaction.objectStore(STORE))
-      request.onsuccess = () => resolve(request.result)
+      // やりとりが終わってから確定とする。request の成功だけでは書き込みが
+      // 確定しておらず、直後に閉じられると消えることがある。
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onabort = () => reject(transaction.error ?? new Error('下書きを扱えない'))
       request.onerror = () => reject(request.error ?? new Error('下書きを扱えない'))
     })
   } finally {

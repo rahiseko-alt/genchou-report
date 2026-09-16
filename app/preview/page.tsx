@@ -4,19 +4,19 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import { finishReadiness } from '@/src/domain'
-import { UPLOAD_BUDGET_BYTES } from '@/src/photo/budget'
+import { shrinkToBudget } from '@/src/photo/shrink'
 import { planReport } from '@/src/report/layout'
-import { redoTargets } from '@/src/report/redo'
-import { type SendState, estimateUploadBytes, sendCase } from '@/src/send-case'
+import { type SendState, sendCase } from '@/src/send-case'
+import { RedoList } from './RedoList'
 import { ReportPageView } from './ReportPageView'
+import { SentScreen } from './SentScreen'
 import styles from './page.module.css'
 
 export default function PreviewPage() {
   const router = useRouter()
-  const { genchouCase, ready, discard } = useCaseStore()
+  const { genchouCase, ready, update, discard } = useCaseStore()
   const [state, setState] = useState<SendState>('idle')
   const [failure, setFailure] = useState('')
-  const [redoOpen, setRedoOpen] = useState(false)
 
   // 案件が無い、または不具合が1枚も無いまま開かれたら、手前の画面へ戻す。
   // 送り終えた後は案件を捨てるので、そのときは戻さない。
@@ -26,18 +26,7 @@ export default function PreviewPage() {
     else if (!finishReadiness(genchouCase).canProceed) router.replace('/defects')
   }, [ready, genchouCase, router, state])
 
-  if (state === 'sent') {
-    return (
-      <main className={styles.done}>
-        <p className={styles.doneMark} aria-hidden="true" />
-        <h1 className={styles.doneTitle}>送りました</h1>
-        <p className={styles.doneText}>会社あてにメールが届いています。</p>
-        <button type="button" className={styles.send} onClick={() => router.push('/')}>
-          最初の画面へ
-        </button>
-      </main>
-    )
-  }
+  if (state === 'sent') return <SentScreen onRestart={() => router.push('/')} />
 
   if (genchouCase === null) {
     return (
@@ -48,12 +37,23 @@ export default function PreviewPage() {
   }
 
   const plan = planReport(genchouCase)
-  const tooLarge = estimateUploadBytes(genchouCase) > UPLOAD_BUDGET_BYTES
 
   const send = async () => {
-    setState('sending')
     setFailure('')
-    const result = await sendCase(genchouCase)
+
+    // 送る前に、通信に収まる大きさまで自動で落とす。担当者は何も設定しない。
+    setState('shrinking')
+    const shrunk = await shrinkToBudget(genchouCase)
+    if (!shrunk.ok) {
+      setState('failed')
+      setFailure('写真が多すぎて、この報告書は送れません。枚数を減らしてお試しください')
+      return
+    }
+    // 落とした結果を案件に残す。再送のたびに落とし直さずに済む。
+    update(() => shrunk.genchouCase)
+
+    setState('sending')
+    const result = await sendCase(shrunk.genchouCase)
     if (result.ok) {
       setState('sent')
       // 送り終えた案件は、その場で手放す。端末に残った下書きもここで消える。
@@ -78,38 +78,7 @@ export default function PreviewPage() {
       </div>
 
       <div className={styles.foot}>
-        <div className={styles.redo}>
-          <button
-            type="button"
-            className={styles.redoToggle}
-            aria-expanded={redoOpen}
-            onClick={() => setRedoOpen((open) => !open)}
-          >
-            やり直す
-            <span className={redoOpen ? styles.redoMarkOpen : styles.redoMark} aria-hidden="true" />
-          </button>
-
-          {redoOpen && (
-            <ul className={styles.redoList}>
-              {redoTargets(genchouCase).map((target) => (
-                <li key={target.href}>
-                  <button
-                    type="button"
-                    className={styles.redoItem}
-                    onClick={() =>
-                      router.push(
-                        `${target.href}${target.href.includes('?') ? '&' : '?'}from=preview`,
-                      )
-                    }
-                  >
-                    <span className={styles.redoItemTitle}>{target.title}</span>
-                    <span className={styles.redoItemSummary}>{target.summary}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <RedoList genchouCase={genchouCase} onPick={(href) => router.push(href)} />
 
         {state === 'failed' && (
           <p className={styles.failure} role="status">
@@ -117,14 +86,19 @@ export default function PreviewPage() {
           </p>
         )}
 
-        {tooLarge && state !== 'failed' && (
-          <p className={styles.failure} role="status">
-            写真が重く、このままでは送れないおそれがあります
-          </p>
-        )}
-
-        <button type="button" className={styles.send} onClick={() => void send()} disabled={state === 'sending'}>
-          {state === 'sending' ? '送っています…' : state === 'failed' ? '再送する' : '完了（会社へ送る）'}
+        <button
+          type="button"
+          className={styles.send}
+          onClick={() => void send()}
+          disabled={state === 'shrinking' || state === 'sending'}
+        >
+          {state === 'shrinking'
+            ? '写真を軽くしています…'
+            : state === 'sending'
+              ? '送っています…'
+              : state === 'failed'
+                ? '再送する'
+                : '完了（会社へ送る）'}
         </button>
 
         {state === 'failed' && (
@@ -132,7 +106,6 @@ export default function PreviewPage() {
             type="button"
             className={styles.later}
             onClick={() => router.push('/defects')}
-            disabled={false}
           >
             あとで送る
           </button>

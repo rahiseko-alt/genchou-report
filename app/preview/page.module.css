@@ -35,9 +35,8 @@
 /*
  * 用紙1枚。A4 縦の比のまま縮める。
  *
- * 中の高さはすべて cqw（用紙の内側の幅に対する比）で指定し、PDF と同じ配分にする。
- * 数字の出どころは src/report/build-pdf.ts の定数で、A4 の内側の幅 531.28pt を
- * 100cqw としたときの値。片方だけ変えると、プレビューと PDF の見え方がずれる。
+ * 中の高さは CSS 変数で受け取る。値は src/report/metrics.ts が持ち、PDF と共通。
+ * ここに数字を書き足すと、プレビューと出来上がりがずれる。
  */
 .sheet {
   display: flex;
@@ -52,7 +51,7 @@
 }
 
 .sheetHead {
-  height: 16cqw;
+  height: var(--headingHeight);
 }
 
 .sheetTitle {
@@ -88,7 +87,7 @@
 }
 
 .sectionTitle {
-  height: 3.39cqw;
+  height: var(--sectionTitleHeight);
   margin: 0;
   font-size: 1.9cqw;
   line-height: 1;
@@ -100,11 +99,11 @@
 .defectGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.88cqw;
+  gap: var(--gap);
 }
 
 .exteriorGrid {
-  margin-bottom: 1.88cqw;
+  margin-bottom: var(--gap);
 }
 
 .exteriorPhoto,
@@ -114,13 +113,13 @@
   background: #2b2f36;
 }
 
-/* 幅 260.64pt に対して、外観は高さ 115pt、不具合は 150pt。 */
+/* 写真の高さは PDF と同じ。幅は列が決めるので、高さだけを揃える。 */
 .exteriorPhoto {
-  aspect-ratio: 260.64 / 115;
+  height: var(--exteriorCellHeight);
 }
 
 .defectPhoto {
-  aspect-ratio: 260.64 / 150;
+  height: var(--defectPhotoHeight);
 }
 
 .defectCell {
@@ -135,7 +134,7 @@
   flex-direction: column;
   gap: 0.2cqw;
   /* 補足が無い枠でも高さを取り、写真の位置を揃える。 */
-  height: 6.02cqw;
+  height: var(--defectTextHeight);
   overflow: hidden;
 }
 
@@ -158,7 +157,7 @@
 }
 
 .sheetFoot {
-  height: 4.52cqw;
+  height: var(--footerHeight);
   margin: auto 0 0;
   padding-top: 1.5cqw;
   font-size: 1.5cqw;
