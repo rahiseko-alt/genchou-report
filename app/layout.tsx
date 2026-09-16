@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { APP_DESCRIPTION, APP_NAME, BRAND_COLOR } from '@/src/branding'
+import { CaseProvider } from '@/src/case-store'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -18,7 +19,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        <CaseProvider>{children}</CaseProvider>
+      </body>
     </html>
   )
 }

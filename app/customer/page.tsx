@@ -1,17 +1,15 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { useCaseStore } from '@/src/case-store'
 import {
   type CustomerInfo,
   type CustomerInfoIssue,
-  type GenchouCase,
-  beginCase,
   customerInfoReadiness,
   withCustomerInfo,
 } from '@/src/domain/genchou-case'
-import { recallSurveyorName, rememberSurveyorName } from '@/src/storage/last-surveyor'
-import { today } from '@/src/today'
+import { rememberSurveyorName } from '@/src/storage/last-surveyor'
 import styles from './page.module.css'
 
 /** 「次へ」から押せない理由を指すための目印。 */
@@ -23,23 +21,14 @@ const ISSUE_MESSAGES: Record<CustomerInfoIssue, string> = {
 
 export default function CustomerPage() {
   const router = useRouter()
+  const { genchouCase, begin, update } = useCaseStore()
 
-  // 調査日も前回の担当者名も、開いた端末の中にしか無い。最初の描画に混ぜると、
-  // 組み立てた日の日付が HTML に焼き付き、配置したあと何日経ってもその日付が出る。
-  // そのため案件は端末の上で始める。
-  //
-  // 始まるまで入力欄を出さないのは、出してしまうと読み込みの前に打った内容が
-  // 案件の作り直しで消えるため。見出しは先に出るので画面が白くはならない。
-  //
-  // Next.js の手引き（preventing-flash-before-hydration）は、先に描いてから
-  // スクリプトで書き換える方法を薦めている。ここで採らないのは、これが利用者の
-  // 編集する入力欄であり、値は React が持つ必要があるため。
-  const [genchouCase, setGenchouCase] = useState<GenchouCase | null>(null)
+  // 案件は端末の上で始まる。調査日の「今日」も前回の担当者名も端末の中にしか無く、
+  // 最初の描画に混ぜると組み立てた日の日付が HTML に焼き付くため。
+  useEffect(() => begin(), [begin])
 
-  useEffect(() => {
-    setGenchouCase(beginCase({ today: today(), lastSurveyorName: recallSurveyorName() }))
-  }, [])
-
+  // 始まるまで入力欄を出さないのは、出してしまうと案件が始まる前に打った内容が
+  // 消えるため。見出しは先に出るので画面が白くはならない。
   if (genchouCase === null) {
     return (
       <main className={styles.main}>
@@ -51,8 +40,7 @@ export default function CustomerPage() {
   const { customer } = genchouCase
   const readiness = customerInfoReadiness(customer)
 
-  const update = (patch: Partial<CustomerInfo>) =>
-    setGenchouCase((current) => (current === null ? current : withCustomerInfo(current, patch)))
+  const edit = (patch: Partial<CustomerInfo>) => update(withCustomerInfo(genchouCase, patch))
 
   const goNext = () => {
     if (!readiness.canProceed) return
@@ -72,7 +60,7 @@ export default function CustomerPage() {
           <input
             className={styles.input}
             value={customer.customerName}
-            onChange={(event) => update({ customerName: event.target.value })}
+            onChange={(event) => edit({ customerName: event.target.value })}
             autoComplete="off"
             enterKeyHint="next"
           />
@@ -83,7 +71,7 @@ export default function CustomerPage() {
           <input
             className={styles.input}
             value={customer.propertyAddress}
-            onChange={(event) => update({ propertyAddress: event.target.value })}
+            onChange={(event) => edit({ propertyAddress: event.target.value })}
             autoComplete="off"
             enterKeyHint="next"
           />
@@ -95,7 +83,7 @@ export default function CustomerPage() {
             className={styles.input}
             type="date"
             value={customer.surveyedOn}
-            onChange={(event) => update({ surveyedOn: event.target.value })}
+            onChange={(event) => edit({ surveyedOn: event.target.value })}
           />
         </label>
 
@@ -104,7 +92,7 @@ export default function CustomerPage() {
           <input
             className={styles.input}
             value={customer.surveyorName}
-            onChange={(event) => update({ surveyorName: event.target.value })}
+            onChange={(event) => edit({ surveyorName: event.target.value })}
             autoComplete="off"
             enterKeyHint="done"
           />

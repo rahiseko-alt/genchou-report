@@ -14,9 +14,27 @@ export type CustomerInfo = {
   surveyorName: string
 }
 
+/** 枠に収まった写真1枚。 */
+export type Photo = {
+  /** 枠の入れ替えを見分けるための目印。 */
+  id: string
+  blob: Blob
+  width: number
+  height: number
+}
+
+/** 写真を1枚入れるための場所。まだ入っていなければ null。 */
+export type PhotoSlot = Photo | null
+
+/** 外観写真の枠は4つで固定。 */
+export type ExteriorPhotos = [PhotoSlot, PhotoSlot, PhotoSlot, PhotoSlot]
+
+export const EXTERIOR_SLOT_COUNT = 4
+
 /** 1件の現調と、そこから生まれる1通の現調報告書をひとまとめにした単位。 */
 export type GenchouCase = {
   customer: CustomerInfo
+  exteriorPhotos: ExteriorPhotos
 }
 
 export function beginCase({
@@ -34,7 +52,48 @@ export function beginCase({
       surveyedOn: today,
       surveyorName: lastSurveyorName,
     },
+    exteriorPhotos: [null, null, null, null],
   }
+}
+
+export function withExteriorPhoto(
+  genchouCase: GenchouCase,
+  slotIndex: number,
+  photo: Photo,
+): GenchouCase {
+  return replaceExteriorSlot(genchouCase, slotIndex, photo)
+}
+
+export function withoutExteriorPhoto(genchouCase: GenchouCase, slotIndex: number): GenchouCase {
+  return replaceExteriorSlot(genchouCase, slotIndex, null)
+}
+
+function replaceExteriorSlot(
+  genchouCase: GenchouCase,
+  slotIndex: number,
+  slot: PhotoSlot,
+): GenchouCase {
+  const exteriorPhotos = [...genchouCase.exteriorPhotos] as ExteriorPhotos
+  exteriorPhotos[slotIndex] = slot
+  return { ...genchouCase, exteriorPhotos }
+}
+
+/** 外観の画面から先へ進めない理由。 */
+export type ExteriorIssue = 'exteriorPhotosIncomplete'
+
+export type ExteriorReadiness =
+  | { canProceed: true }
+  | { canProceed: false; issues: ExteriorIssue[] }
+
+/**
+ * 外観の画面で「次へ」を押せるか。
+ *
+ * 外観は4枚で固定。撮り忘れたまま先へ進まないよう、揃うまで止める。
+ */
+export function exteriorReadiness(exteriorPhotos: ExteriorPhotos): ExteriorReadiness {
+  const allFilled = exteriorPhotos.every((slot) => slot !== null)
+
+  return allFilled ? { canProceed: true } : { canProceed: false, issues: ['exteriorPhotosIncomplete'] }
 }
 
 export function withCustomerInfo(
