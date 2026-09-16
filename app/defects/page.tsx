@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import {
@@ -31,8 +31,15 @@ const ISSUE_MESSAGES: Record<FinishIssue, string> = {
 
 export default function DefectsPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { genchouCase, ready, update } = useCaseStore()
-  const [pageIndex, setPageIndex] = useState(0)
+
+  // やり直しから来たときは、指定されたページを開く。
+  const requestedPage = Number(searchParams.get('page') ?? '1')
+  const cameFromPreview = searchParams.get('from') === 'preview'
+  const [pageIndex, setPageIndex] = useState(
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage - 1 : 0,
+  )
   const [failedFrames, setFailedFrames] = useState<ReadonlySet<number>>(new Set())
 
   // 外観が揃っていないまま開かれたら、手前の画面へ戻す。
@@ -127,7 +134,7 @@ export default function DefectsPage() {
           disabled={!readiness.canProceed}
           aria-describedby={readiness.canProceed ? undefined : REASON_ID}
         >
-          作成完了
+          {cameFromPreview ? 'プレビューへ戻る' : '作成完了'}
         </button>
 
         <div className={styles.pageButtons}>

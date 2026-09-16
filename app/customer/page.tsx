@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import {
@@ -21,6 +21,9 @@ const ISSUE_MESSAGES: Record<CustomerInfoIssue, string> = {
 
 export default function CustomerPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // やり直しから来たときは、一足でプレビューへ戻れるようにする。
+  const cameFromPreview = searchParams.get('from') === 'preview'
   const { genchouCase, ready, begin, update } = useCaseStore()
 
   // 案件は端末の上で始まる。調査日の「今日」も前回の担当者名も端末の中にしか無く、
@@ -49,7 +52,7 @@ export default function CustomerPage() {
   const goNext = () => {
     if (!readiness.canProceed) return
     rememberSurveyorName(customer.surveyorName)
-    router.push('/exterior')
+    router.push(cameFromPreview ? '/preview' : '/exterior')
   }
 
   return (
@@ -116,7 +119,7 @@ export default function CustomerPage() {
           disabled={!readiness.canProceed}
           aria-describedby={readiness.canProceed ? undefined : REASON_ID}
         >
-          次へ
+          {cameFromPreview ? 'プレビューへ戻る' : '次へ'}
         </button>
       </div>
     </main>

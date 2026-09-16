@@ -6,6 +6,7 @@ import { useCaseStore } from '@/src/case-store'
 import { finishReadiness } from '@/src/domain'
 import { UPLOAD_BUDGET_BYTES } from '@/src/photo/budget'
 import { planReport } from '@/src/report/layout'
+import { redoTargets } from '@/src/report/redo'
 import { type SendState, estimateUploadBytes, sendCase } from '@/src/send-case'
 import { ReportPageView } from './ReportPageView'
 import styles from './page.module.css'
@@ -15,6 +16,7 @@ export default function PreviewPage() {
   const { genchouCase, ready, discard } = useCaseStore()
   const [state, setState] = useState<SendState>('idle')
   const [failure, setFailure] = useState('')
+  const [redoOpen, setRedoOpen] = useState(false)
 
   // 案件が無い、または不具合が1枚も無いまま開かれたら、手前の画面へ戻す。
   // 送り終えた後は案件を捨てるので、そのときは戻さない。
@@ -76,6 +78,39 @@ export default function PreviewPage() {
       </div>
 
       <div className={styles.foot}>
+        <div className={styles.redo}>
+          <button
+            type="button"
+            className={styles.redoToggle}
+            aria-expanded={redoOpen}
+            onClick={() => setRedoOpen((open) => !open)}
+          >
+            やり直す
+            <span className={redoOpen ? styles.redoMarkOpen : styles.redoMark} aria-hidden="true" />
+          </button>
+
+          {redoOpen && (
+            <ul className={styles.redoList}>
+              {redoTargets(genchouCase).map((target) => (
+                <li key={target.href}>
+                  <button
+                    type="button"
+                    className={styles.redoItem}
+                    onClick={() =>
+                      router.push(
+                        `${target.href}${target.href.includes('?') ? '&' : '?'}from=preview`,
+                      )
+                    }
+                  >
+                    <span className={styles.redoItemTitle}>{target.title}</span>
+                    <span className={styles.redoItemSummary}>{target.summary}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         {state === 'failed' && (
           <p className={styles.failure} role="status">
             {failure}

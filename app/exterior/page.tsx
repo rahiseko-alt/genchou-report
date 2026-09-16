@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import {
@@ -26,6 +26,9 @@ const frameLabel = (position: number) => `外観写真 ${position}枚目`
 
 export default function ExteriorPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // やり直しから来たときは、一足でプレビューへ戻れるようにする。
+  const cameFromPreview = searchParams.get('from') === 'preview'
   const { genchouCase, ready, update } = useCaseStore()
   const [failedFrames, setFailedFrames] = useState<ReadonlySet<number>>(new Set())
 
@@ -98,11 +101,11 @@ export default function ExteriorPage() {
         <button
           type="button"
           className={styles.next}
-          onClick={() => router.push('/defects')}
+          onClick={() => router.push(cameFromPreview ? '/preview' : '/defects')}
           disabled={!readiness.canProceed}
           aria-describedby={readiness.canProceed ? undefined : REASON_ID}
         >
-          次へ
+          {cameFromPreview ? 'プレビューへ戻る' : '次へ'}
         </button>
       </div>
     </main>

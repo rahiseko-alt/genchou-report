@@ -251,3 +251,70 @@
   font-size: 15px;
   color: var(--ink-muted);
 }
+
+.redo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.redoToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* 開いているかどうかが分かる三角。 */
+.redoMark,
+.redoMarkOpen {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--ink-muted);
+}
+
+.redoMarkOpen {
+  transform: rotate(180deg);
+}
+
+.redoList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.redoItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+}
+
+.redoItemTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--brand);
+}
+
+.redoItemSummary {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
