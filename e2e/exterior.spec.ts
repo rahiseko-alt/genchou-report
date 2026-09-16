@@ -123,14 +123,20 @@ test('入った写真を画像から選び直せる', async ({ page }) => {
   ])
   await chooser.setFiles(ROTATED)
 
-  // 選び直した縦長の写真に入れ替わり、操作の一覧も閉じている
-  const size = await page
-    .getByRole('img', { name: '外観写真 1枚目' })
-    .evaluate((img) => ({
-      width: (img as HTMLImageElement).naturalWidth,
-      height: (img as HTMLImageElement).naturalHeight,
-    }))
-  expect(size.height).toBeGreaterThan(size.width)
+  // 選び直した縦長の写真に入れ替わる。入れ替えは枠の見た目が変わらないので、
+  // 取り込みが終わって絵が差し替わるまで待つ。
+  await expect
+    .poll(() =>
+      page
+        .getByRole('img', { name: '外観写真 1枚目' })
+        .evaluate((img) => {
+          const image = img as HTMLImageElement
+          return image.naturalHeight > image.naturalWidth
+        }),
+    )
+    .toBe(true)
+
+  // 操作の一覧も閉じている
   await expect(page.getByRole('button', { name: '撮り直す' })).toBeHidden()
 })
 

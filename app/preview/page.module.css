@@ -1,0 +1,167 @@
+.main {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  color: var(--brand);
+}
+
+.pageCount {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.sheets {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/*
+ * 用紙1枚。A4 縦の比のまま縮める。
+ *
+ * 中の高さはすべて cqw（用紙の内側の幅に対する比）で指定し、PDF と同じ配分にする。
+ * 数字の出どころは src/report/build-pdf.ts の定数で、A4 の内側の幅 531.28pt を
+ * 100cqw としたときの値。片方だけ変えると、プレビューと PDF の見え方がずれる。
+ */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 210 / 297;
+  padding: 5.376%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(27, 29, 33, 0.08);
+  container-type: inline-size;
+}
+
+.sheetHead {
+  height: 16cqw;
+}
+
+.sheetTitle {
+  margin: 0;
+  font-size: 3cqw;
+  color: var(--brand);
+}
+
+.headRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35cqw;
+  margin: 1.2cqw 0 0;
+  padding: 0 0 1.2cqw;
+  border-bottom: 1px solid var(--line);
+}
+
+.headRow {
+  display: flex;
+  gap: 1.5cqw;
+  font-size: 1.8cqw;
+  line-height: 1.25;
+}
+
+.headRow dt {
+  flex: 0 0 10cqw;
+  color: var(--ink-muted);
+}
+
+.headRow dd {
+  margin: 0;
+  color: var(--ink);
+}
+
+.sectionTitle {
+  height: 3.39cqw;
+  margin: 0;
+  font-size: 1.9cqw;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.exteriorGrid,
+.defectGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.88cqw;
+}
+
+.exteriorGrid {
+  margin-bottom: 1.88cqw;
+}
+
+.exteriorPhoto,
+.defectPhoto {
+  width: 100%;
+  object-fit: contain;
+  background: #2b2f36;
+}
+
+/* 幅 260.64pt に対して、外観は高さ 115pt、不具合は 150pt。 */
+.exteriorPhoto {
+  aspect-ratio: 260.64 / 115;
+}
+
+.defectPhoto {
+  aspect-ratio: 260.64 / 150;
+}
+
+.defectCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5cqw;
+  margin: 0;
+}
+
+.defectCaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2cqw;
+  /* 補足が無い枠でも高さを取り、写真の位置を揃える。 */
+  height: 6.02cqw;
+  overflow: hidden;
+}
+
+.statuses {
+  font-size: 1.7cqw;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.note {
+  font-size: 1.5cqw;
+  line-height: 1.3;
+  color: var(--ink);
+  /* 用紙に収まらない補足は切る。PDF と同じく2行まで。 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sheetFoot {
+  height: 4.52cqw;
+  margin: auto 0 0;
+  padding-top: 1.5cqw;
+  font-size: 1.5cqw;
+  color: var(--ink-muted);
+  text-align: center;
+}
