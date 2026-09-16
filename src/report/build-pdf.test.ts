@@ -17,7 +17,7 @@ import { buildReportPdf } from './build-pdf'
 
 const JPEG = new Uint8Array(readFileSync(join(process.cwd(), 'src/report/sample-photo.jpg')))
 
-const photo = (id: string): Photo => ({ id, jpeg: JPEG, width: 1600, height: 1200 })
+const photo = (id: string): Photo => ({ id, jpeg: JPEG, quality: 0.82, width: 1600, height: 1200 })
 
 function sampleCase(defectCount: number): GenchouCase {
   let current = withCustomerInfo(beginCase({ today: '2026-09-16' }), {

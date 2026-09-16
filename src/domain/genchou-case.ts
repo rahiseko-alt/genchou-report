@@ -22,6 +22,8 @@ export type Photo = {
   id: string
   /** JPEG の中身。ブラウザの型ではなく、ただのバイト列として持つ。 */
   jpeg: Uint8Array<ArrayBuffer>
+  /** この JPEG を作ったときの画質。容量が収まらないときに下げ直すために持つ。 */
+  quality: number
   width: number
   height: number
 }

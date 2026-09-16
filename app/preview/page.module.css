@@ -165,3 +165,89 @@
   color: var(--ink-muted);
   text-align: center;
 }
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.failure {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--danger);
+}
+
+.send {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.send:disabled {
+  background: var(--line);
+  color: var(--ink-muted);
+}
+
+.later {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--brand);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--brand);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.done {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+/* 送れたことが一目で分かる丸と鉤。 */
+.doneMark {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+
+.doneMark::after {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 24px;
+  width: 22px;
+  height: 38px;
+  border: solid var(--brand-ink);
+  border-width: 0 5px 5px 0;
+  transform: rotate(45deg);
+}
+
+.doneTitle {
+  margin: 0;
+  font-size: 24px;
+  color: var(--brand);
+}
+
+.doneText {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--ink-muted);
+}

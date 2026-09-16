@@ -23,6 +23,8 @@ type CaseStore = {
    * 写真の取り込みのように時間のかかる操作が重なっても、先の変更を消さないため。
    */
   update: (revise: (current: GenchouCase) => GenchouCase) => void
+  /** 送り終えた、または捨てると決めた案件を手放す。 */
+  discard: () => void
 }
 
 const CaseContext = createContext<CaseStore | null>(null)
@@ -42,7 +44,12 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
     setGenchouCase((current) => (current === null ? current : revise(current)))
   }, [])
 
-  const store = useMemo(() => ({ genchouCase, begin, update }), [genchouCase, begin, update])
+  const discard = useCallback(() => setGenchouCase(null), [])
+
+  const store = useMemo(
+    () => ({ genchouCase, begin, update, discard }),
+    [genchouCase, begin, update, discard],
+  )
 
   return <CaseContext.Provider value={store}>{children}</CaseContext.Provider>
 }

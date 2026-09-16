@@ -18,6 +18,7 @@ import {
 const photo = (id: string): Photo => ({
   id,
   jpeg: new TextEncoder().encode(id),
+  quality: 0.82,
   width: 1600,
   height: 1200,
 })

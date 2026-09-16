@@ -1,4 +1,5 @@
 import type { Photo } from '@/src/domain/genchou-case'
+import { JPEG_QUALITIES, type JpegQuality } from './budget'
 import { LONG_EDGE, fitWithin } from './scale'
 
 /**
@@ -8,10 +9,10 @@ import { LONG_EDGE, fitWithin } from './scale'
  * 大きさをいくつにするかの判断は `scale.ts` に置き、そちらだけを単体で確かめる。
  */
 
-/** 再符号化するときの画質。容量に合わせた引き下げは Issue #7。 */
-const JPEG_QUALITY = 0.82
-
-export async function importPhoto(file: File, longEdge: number = LONG_EDGE): Promise<Photo> {
+export async function importPhoto(
+  file: File,
+  { longEdge = LONG_EDGE, quality = JPEG_QUALITIES[0] }: { longEdge?: number; quality?: JpegQuality } = {},
+): Promise<Photo> {
   const source = await decode(file)
   const size = fitWithin({ width: source.naturalWidth, height: source.naturalHeight }, longEdge)
 
@@ -24,13 +25,13 @@ export async function importPhoto(file: File, longEdge: number = LONG_EDGE): Pro
   context.drawImage(source, 0, 0, size.width, size.height)
 
   const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY),
+    canvas.toBlob(resolve, 'image/jpeg', quality),
   )
   if (blob === null) throw new Error('写真を保存できない')
 
   const jpeg = new Uint8Array(await blob.arrayBuffer())
 
-  return { id: crypto.randomUUID(), jpeg, width: size.width, height: size.height }
+  return { id: crypto.randomUUID(), jpeg, quality, width: size.width, height: size.height }
 }
 
 /**
