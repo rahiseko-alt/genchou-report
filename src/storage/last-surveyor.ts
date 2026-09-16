@@ -5,7 +5,7 @@
  */
 const KEY = 'genchou.lastSurveyorName'
 
-export function readLastSurveyorName(): string {
+export function recallSurveyorName(): string {
   try {
     return window.localStorage.getItem(KEY) ?? ''
   } catch {
@@ -16,7 +16,8 @@ export function readLastSurveyorName(): string {
 
 export function rememberSurveyorName(name: string): void {
   try {
-    window.localStorage.setItem(KEY, name)
+    // 空白だけの名前を次の案件へ引き継がない。
+    window.localStorage.setItem(KEY, name.trim())
   } catch {
     // 覚えられなくても入力は続けられる。
   }

@@ -19,7 +19,7 @@ export type GenchouCase = {
   customer: CustomerInfo
 }
 
-export function startCase({
+export function beginCase({
   today,
   lastSurveyorName = '',
 }: {
@@ -47,7 +47,7 @@ export function withCustomerInfo(
 /** 顧客情報の画面から先へ進めない理由。 */
 export type CustomerInfoIssue = 'customerNameMissing'
 
-export type CustomerInfoCheck =
+export type CustomerInfoReadiness =
   | { canProceed: true }
   | { canProceed: false; issues: CustomerInfoIssue[] }
 
@@ -57,7 +57,7 @@ export type CustomerInfoCheck =
  * 顧客名は報告書の見出しと添付ファイル名に要るため必須。
  * 物件住所は現地で分からないことがあるため任意。
  */
-export function checkCustomerInfo(customer: CustomerInfo): CustomerInfoCheck {
+export function customerInfoReadiness(customer: CustomerInfo): CustomerInfoReadiness {
   const issues: CustomerInfoIssue[] = []
 
   if (customer.customerName.trim() === '') issues.push('customerNameMissing')

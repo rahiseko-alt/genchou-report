@@ -32,3 +32,15 @@ button {
   font: inherit;
   color: inherit;
 }
+
+/* 画面の枠組み。入力欄を持たない素の画面はこれだけで足りる。 */
+.screen {
+  min-height: 100dvh;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.screenTitle {
+  margin: 0 0 20px;
+  font-size: 20px;
+  color: var(--brand);
+}

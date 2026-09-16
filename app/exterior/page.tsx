@@ -1,9 +1,7 @@
-import styles from './page.module.css'
-
 export default function ExteriorPage() {
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>外観写真</h1>
+    <main className="screen">
+      <h1 className="screenTitle">外観写真</h1>
     </main>
   )
 }

@@ -26,11 +26,26 @@ test('物件住所が空でも次へ進める', async ({ page }) => {
   await expect(page).toHaveURL(/\/exterior$/)
 })
 
-test('調査日に今日の日付が入っている', async ({ page }) => {
-  await page.goto('/customer')
+test.describe('調査日', () => {
+  // 端末の時計を固定して、期待値を実行時に計算し直さずに確かめる。
+  test.use({ timezoneId: 'Asia/Tokyo' })
 
-  const today = new Date().toLocaleDateString('sv-SE')
-  await expect(page.getByLabel('調査日')).toHaveValue(today)
+  test('配信される HTML に日付が焼き付いていない', async ({ request }) => {
+    // 組み立てた時点の日付が HTML に入っていると、配置したあと何日経っても
+    // その日付が出る。日付は端末の暦から入れるため、配信時点では空であること。
+    const html = await (await request.get('/customer')).text()
+
+    expect(html).not.toMatch(/value="20\d\d-\d\d-\d\d"/)
+  })
+
+  test('端末の暦での今日が入っている', async ({ page }) => {
+    // 日本時間の 2026-03-05 01:00。UTC ではまだ前日の 2026-03-04 16:00。
+    await page.clock.install({ time: new Date('2026-03-04T16:00:00Z') })
+
+    await page.goto('/customer')
+
+    await expect(page.getByLabel('調査日')).toHaveValue('2026-03-05')
+  })
 })
 
 test('担当者名は前回の値が入った状態で開く', async ({ page }) => {
