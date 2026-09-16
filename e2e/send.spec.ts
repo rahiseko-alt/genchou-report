@@ -148,6 +148,6 @@ test('送り終えたあと最初の画面へ戻ると、案件は残ってい�
 
   await expect(page).toHaveURL(/\/$/)
   // 前の案件は消えているので、顧客情報は空から始まる
-  await page.getByRole('link', { name: 'スタート' }).click()
+  await page.getByRole('button', { name: 'スタート' }).click()
   await expect(page.getByLabel('顧客名')).toHaveValue('')
 })

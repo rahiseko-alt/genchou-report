@@ -140,12 +140,13 @@ test('写真を外すと、その枠のステータスと補足も消える', as
   await expect(page.getByLabel('1枚目の補足')).toHaveCount(0)
 })
 
-test('途中の画面をいきなり開いても、半端な状態で始まらない', async ({ page }) => {
-  // 案件は画面が生きている間しか残らないため、読み込み直すと消える（保存は Issue #12）。
-  // 半端な画面に落ちず、始まりへ戻されることを確かめる。
+test('途中の画面をいきなり開いても、まだ足りない手前の画面へ戻される', async ({ page }) => {
+  // まだ何も始まっていなければ、始まりの画面へ
   await page.goto('/defects')
   await expect(page).toHaveURL(/\/customer$/)
 
+  // 顧客情報だけ入れた状態で先の画面を開くと、外観へ戻される
+  await page.getByLabel('顧客名').fill('山田')
   await page.goto('/preview')
-  await expect(page).toHaveURL(/\/customer$/)
+  await expect(page).toHaveURL(/\/exterior$/)
 })

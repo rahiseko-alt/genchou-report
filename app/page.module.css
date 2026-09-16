@@ -31,6 +31,7 @@
 
 .start {
   display: flex;
+  border: none;
   align-items: center;
   justify-content: center;
   width: min(260px, 72vw);
@@ -47,4 +48,42 @@
 
 .start:active {
   transform: scale(0.97);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.draftNote {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+.resume {
+  width: 100%;
+  padding: 20px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fresh {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--brand);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--brand);
+  font-size: 15px;
+  font-weight: 700;
 }

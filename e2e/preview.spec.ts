@@ -96,8 +96,7 @@ test('不具合が無いまま完成プレビューへ来たら、不具合の�
   await expect(page).toHaveURL(/\/defects$/)
 
   // 不具合を1枚も入れずにプレビューへ進もうとする
-  await page.evaluate(() => window.history.pushState({}, '', '/preview'))
   await page.goto('/preview')
 
-  await expect(page).toHaveURL(/\/customer$/)
+  await expect(page).toHaveURL(/\/defects$/)
 })

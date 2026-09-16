@@ -26,13 +26,13 @@ const frameLabel = (position: number) => `外観写真 ${position}枚目`
 
 export default function ExteriorPage() {
   const router = useRouter()
-  const { genchouCase, update } = useCaseStore()
+  const { genchouCase, ready, update } = useCaseStore()
   const [failedFrames, setFailedFrames] = useState<ReadonlySet<number>>(new Set())
 
   // 案件が無いまま開かれたら、始まりの画面へ戻す。
   useEffect(() => {
-    if (genchouCase === null) router.replace('/customer')
-  }, [genchouCase, router])
+    if (ready && genchouCase === null) router.replace('/customer')
+  }, [ready, genchouCase, router])
 
   if (genchouCase === null) {
     return (

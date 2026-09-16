@@ -12,17 +12,17 @@ import styles from './page.module.css'
 
 export default function PreviewPage() {
   const router = useRouter()
-  const { genchouCase, discard } = useCaseStore()
+  const { genchouCase, ready, discard } = useCaseStore()
   const [state, setState] = useState<SendState>('idle')
   const [failure, setFailure] = useState('')
 
   // 案件が無い、または不具合が1枚も無いまま開かれたら、手前の画面へ戻す。
   // 送り終えた後は案件を捨てるので、そのときは戻さない。
   useEffect(() => {
-    if (state === 'sent') return
+    if (!ready || state === 'sent') return
     if (genchouCase === null) router.replace('/customer')
     else if (!finishReadiness(genchouCase).canProceed) router.replace('/defects')
-  }, [genchouCase, router, state])
+  }, [ready, genchouCase, router, state])
 
   if (state === 'sent') {
     return (
@@ -30,14 +30,7 @@ export default function PreviewPage() {
         <p className={styles.doneMark} aria-hidden="true" />
         <h1 className={styles.doneTitle}>送りました</h1>
         <p className={styles.doneText}>会社あてにメールが届いています。</p>
-        <button
-          type="button"
-          className={styles.send}
-          onClick={() => {
-            discard()
-            router.push('/')
-          }}
-        >
+        <button type="button" className={styles.send} onClick={() => router.push('/')}>
           最初の画面へ
         </button>
       </main>
@@ -61,6 +54,8 @@ export default function PreviewPage() {
     const result = await sendCase(genchouCase)
     if (result.ok) {
       setState('sent')
+      // 送り終えた案件は、その場で手放す。端末に残った下書きもここで消える。
+      discard()
     } else {
       setState('failed')
       setFailure(result.message)

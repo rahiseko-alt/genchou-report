@@ -48,14 +48,18 @@ test.describe('調査日', () => {
   })
 })
 
-test('担当者名は前回の値が入った状態で開く', async ({ page }) => {
+test('次の案件を始めると、担当者名だけが引き継がれる', async ({ page }) => {
   await page.goto('/customer')
   await page.getByLabel('顧客名').fill('山田')
   await page.getByLabel('担当者名').fill('田中')
   await page.getByRole('button', { name: '次へ' }).click()
   await expect(page).toHaveURL(/\/exterior$/)
 
-  await page.goto('/customer')
+  // 作りかけを捨てて、次の案件を始める
+  await page.goto('/')
+  page.once('dialog', (dialog) => void dialog.accept())
+  await page.getByRole('button', { name: '新しく始める' }).click()
+  await expect(page).toHaveURL(/\/customer$/)
 
   await expect(page.getByLabel('担当者名')).toHaveValue('田中')
   await expect(page.getByLabel('顧客名')).toHaveValue('')

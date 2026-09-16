@@ -21,11 +21,14 @@ const ISSUE_MESSAGES: Record<CustomerInfoIssue, string> = {
 
 export default function CustomerPage() {
   const router = useRouter()
-  const { genchouCase, begin, update } = useCaseStore()
+  const { genchouCase, ready, begin, update } = useCaseStore()
 
   // 案件は端末の上で始まる。調査日の「今日」も前回の担当者名も端末の中にしか無く、
   // 最初の描画に混ぜると組み立てた日の日付が HTML に焼き付くため。
-  useEffect(() => begin(), [begin])
+  // 端末に残っている下書きを読み終えるまでは、新しく始めない。
+  useEffect(() => {
+    if (ready) begin()
+  }, [ready, begin])
 
   // 始まるまで入力欄を出さないのは、出してしまうと案件が始まる前に打った内容が
   // 消えるため。見出しは先に出るので画面が白くはならない。

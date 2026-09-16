@@ -31,15 +31,16 @@ const ISSUE_MESSAGES: Record<FinishIssue, string> = {
 
 export default function DefectsPage() {
   const router = useRouter()
-  const { genchouCase, update } = useCaseStore()
+  const { genchouCase, ready, update } = useCaseStore()
   const [pageIndex, setPageIndex] = useState(0)
   const [failedFrames, setFailedFrames] = useState<ReadonlySet<number>>(new Set())
 
   // 外観が揃っていないまま開かれたら、手前の画面へ戻す。
   useEffect(() => {
+    if (!ready) return
     if (genchouCase === null) router.replace('/customer')
     else if (!exteriorReadiness(genchouCase.exteriorFrames).canProceed) router.replace('/exterior')
-  }, [genchouCase, router])
+  }, [ready, genchouCase, router])
 
   if (genchouCase === null) {
     return (
