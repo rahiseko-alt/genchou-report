@@ -12,7 +12,7 @@ import {
   withoutExteriorPhoto,
 } from '@/src/domain/genchou-case'
 import { importPhoto } from '@/src/photo/import-photo'
-import { PhotoFrame } from './PhotoFrame'
+import { PhotoFrame } from '@/src/ui/PhotoFrame'
 import styles from './page.module.css'
 
 /** 「次へ」から押せない理由を指すための目印。 */
@@ -78,7 +78,8 @@ export default function ExteriorPage() {
           <PhotoFrame
             // 枠は4つで固定、並び順がそのまま報告書の順になる。
             key={frameIndex}
-            position={frameIndex + 1}
+            takeLabel={`${frameIndex + 1}枚目を撮る`}
+            attachLabel={`${frameIndex + 1}枚目を画像から選ぶ`}
             label={frameLabel(frameIndex + 1)}
             photo={photo}
             failed={failedFrames.has(frameIndex)}

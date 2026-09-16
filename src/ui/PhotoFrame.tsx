@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { Photo } from '@/src/domain/genchou-case'
-import styles from './page.module.css'
+import styles from './PhotoFrame.module.css'
 
 type Props = {
-  /** 画面と報告書での並び順。1 から数える。 */
-  position: number
+  /** 空の枠に出す誘い文句。「1枚目を撮る」など。 */
+  takeLabel: string
+  /** 画像添付のボタンに出す文言。 */
+  attachLabel: string
+  /** 入った写真の呼び名。読み上げと操作の一覧の見出しに使う。 */
   label: string
   photo: Photo | null
   failed: boolean
@@ -21,7 +24,7 @@ type Props = {
  * すでに端末にある画像を選べる。写真が入った枠を押すと、撮り直すか、
  * 画像から選び直すか、削除するかを選ぶ。
  */
-export function PhotoFrame({ position, label, photo, failed, onPick, onRemove }: Props) {
+export function PhotoFrame({ takeLabel, attachLabel, label, photo, failed, onPick, onRemove }: Props) {
   const cameraInput = useRef<HTMLInputElement>(null)
   const pickerInput = useRef<HTMLInputElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -56,7 +59,7 @@ export function PhotoFrame({ position, label, photo, failed, onPick, onRemove }:
       {photo === null ? (
         <button type="button" className={styles.empty} onClick={() => open(cameraInput.current)}>
           <span className={styles.emptyMark} aria-hidden="true" />
-          <span className={styles.emptyText}>{position}枚目を撮る</span>
+          <span className={styles.emptyText}>{takeLabel}</span>
         </button>
       ) : (
         <button type="button" className={styles.filled} onClick={() => setMenuOpen(true)}>
@@ -66,7 +69,7 @@ export function PhotoFrame({ position, label, photo, failed, onPick, onRemove }:
 
       {photo === null && (
         <button type="button" className={styles.attach} onClick={() => open(pickerInput.current)}>
-          {position}枚目を画像から選ぶ
+          {attachLabel}
         </button>
       )}
 
