@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-09-16 土台とトップページを作った（Issue #3 完了）
+
+**決めたこと**
+
+- Next.js（App Router）+ TypeScript、単体テストは Vitest、通し操作テストは Playwright
+- アプリ名・説明・ブランド色は `src/branding.ts` の1箇所。CSS 側は `app/globals.css` に
+  同じ色を直書きしているため、色を変えるときは両方を直す
+- Playwright の起動判定は `/manifest.webmanifest` を見る。ルートだと画面未実装の間 404 で待ち続ける
+- この環境の Chromium は Playwright が期待する版と違う。`playwright.config.ts` が
+  `/opt/pw-browsers/chromium` があればそれを使う
+- サービスワーカーは Issue #12 の担当。#3 では足さない
+- 「スタート」はリンクのまま（画面遷移のため）。テストも `getByRole('link')`
+
+**次にやること**
+
+- Issue #4（顧客情報の入力）に着手する。`/implement` で進む
+- `src/domain/` に案件モデルの中身を作るのは #4 から
+- 作業の順番は Issue #3〜#15 の blocked_by に入っている
+
+**未解決の問題**
+
+- 送り先の会社アドレス、ステータスの文言（仮 A/B/C）、メール送信サービスの鍵が未定
+- メール送信サービスは Resend が第一候補。無料枠の条件が未確認
+- カメラ直接起動と EXIF 回転は実機での確認が要る（#13）
+- リンタは未導入。`next lint` は Next 16 で削除されたため、入れるなら ESLint を別途
+
 ## 2026-09-16 現調報告書アプリの要件を確定
 
 **決めたこと**
