@@ -177,9 +177,10 @@
   color: var(--ink-muted);
 }
 
-.reason {
+.frameError {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--danger);
 }
 

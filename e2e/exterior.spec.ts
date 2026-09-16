@@ -11,13 +11,13 @@ async function openExterior(page: Page) {
   await expect(page).toHaveURL(/\/exterior$/)
 }
 
-async function shoot(page: Page, slot: number, file: string) {
+async function shoot(page: Page, position: number, file: string) {
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: `${slot}枚目を撮る` }).click(),
+    page.getByRole('button', { name: `${position}枚目を撮る` }).click(),
   ])
   await chooser.setFiles(file)
-  await expect(page.getByRole('img', { name: `外観写真 ${slot}枚目` })).toBeVisible()
+  await expect(page.getByRole('img', { name: `外観写真 ${position}枚目` })).toBeVisible()
 }
 
 test('4枚揃うまで次へ進めない', async ({ page }) => {
@@ -26,8 +26,8 @@ test('4枚揃うまで次へ進めない', async ({ page }) => {
   const next = page.getByRole('button', { name: '次へ' })
   await expect(next).toBeDisabled()
 
-  for (const slot of [1, 2, 3]) {
-    await shoot(page, slot, WIDE)
+  for (const position of [1, 2, 3]) {
+    await shoot(page, position, WIDE)
     await expect(next).toBeDisabled()
   }
 
@@ -93,6 +93,7 @@ test('入った写真は撮り直しと削除ができる', async ({ page }) => 
 
   await page.getByRole('button', { name: '外観写真 1枚目' }).click()
   await expect(page.getByRole('button', { name: '撮り直す' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '画像から選び直す' })).toBeVisible()
   await expect(page.getByRole('button', { name: '削除する' })).toBeVisible()
 
   await page.getByRole('button', { name: 'やめる' }).click()
@@ -109,4 +110,41 @@ test('顧客情報を入れずに外観へ来たら、顧客情報へ戻され�
   await page.goto('/exterior')
 
   await expect(page).toHaveURL(/\/customer$/)
+})
+
+test('入った写真を画像から選び直せる', async ({ page }) => {
+  await openExterior(page)
+  await shoot(page, 1, WIDE)
+
+  await page.getByRole('button', { name: '外観写真 1枚目' }).click()
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: '画像から選び直す' }).click(),
+  ])
+  await chooser.setFiles(ROTATED)
+
+  // 選び直した縦長の写真に入れ替わり、操作の一覧も閉じている
+  const size = await page
+    .getByRole('img', { name: '外観写真 1枚目' })
+    .evaluate((img) => ({
+      width: (img as HTMLImageElement).naturalWidth,
+      height: (img as HTMLImageElement).naturalHeight,
+    }))
+  expect(size.height).toBeGreaterThan(size.width)
+  await expect(page.getByRole('button', { name: '撮り直す' })).toBeHidden()
+})
+
+test('取り込みに失敗した枠に、その枠のことだと分かる断りが出る', async ({ page }) => {
+  await openExterior(page)
+
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: '2枚目を撮る' }).click(),
+  ])
+  await chooser.setFiles({ name: 'broken.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('これは画像ではない') })
+
+  const frames = page.getByText('この写真は読み取れませんでした。もう一度入れてください')
+  await expect(frames).toHaveCount(1)
+  // 断りは失敗した枠の側にあり、他の枠には出ない
+  await expect(page.getByRole('button', { name: '2枚目を撮る' })).toBeVisible()
 })

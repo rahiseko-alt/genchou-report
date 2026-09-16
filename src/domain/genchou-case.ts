@@ -14,27 +14,29 @@ export type CustomerInfo = {
   surveyorName: string
 }
 
-/** 枠に収まった写真1枚。 */
+/** 枠に収まった写真1枚。整え終えた JPEG の中身をそのまま持つ。 */
 export type Photo = {
-  /** 枠の入れ替えを見分けるための目印。 */
+  /** 入れ替えを見分けるための目印。 */
   id: string
-  blob: Blob
+  /** JPEG の中身。ブラウザの型ではなく、ただのバイト列として持つ。 */
+  jpeg: Uint8Array<ArrayBuffer>
   width: number
   height: number
 }
 
 /** 写真を1枚入れるための場所。まだ入っていなければ null。 */
-export type PhotoSlot = Photo | null
+export type Frame = Photo | null
 
 /** 外観写真の枠は4つで固定。 */
-export type ExteriorPhotos = [PhotoSlot, PhotoSlot, PhotoSlot, PhotoSlot]
+export type ExteriorFrames = [Frame, Frame, Frame, Frame]
 
-export const EXTERIOR_SLOT_COUNT = 4
+export const EXTERIOR_FRAME_COUNT = 4
 
 /** 1件の現調と、そこから生まれる1通の現調報告書をひとまとめにした単位。 */
 export type GenchouCase = {
   customer: CustomerInfo
-  exteriorPhotos: ExteriorPhotos
+  /** 並び順がそのまま報告書の並び順になる。 */
+  exteriorFrames: ExteriorFrames
 }
 
 export function beginCase({
@@ -52,34 +54,43 @@ export function beginCase({
       surveyedOn: today,
       surveyorName: lastSurveyorName,
     },
-    exteriorPhotos: [null, null, null, null],
+    exteriorFrames: emptyExteriorFrames(),
   }
+}
+
+function emptyExteriorFrames(): ExteriorFrames {
+  return Array.from({ length: EXTERIOR_FRAME_COUNT }, () => null) as ExteriorFrames
 }
 
 export function withExteriorPhoto(
   genchouCase: GenchouCase,
-  slotIndex: number,
+  frameIndex: number,
   photo: Photo,
 ): GenchouCase {
-  return replaceExteriorSlot(genchouCase, slotIndex, photo)
+  return replaceExteriorFrame(genchouCase, frameIndex, photo)
 }
 
-export function withoutExteriorPhoto(genchouCase: GenchouCase, slotIndex: number): GenchouCase {
-  return replaceExteriorSlot(genchouCase, slotIndex, null)
+export function withoutExteriorPhoto(genchouCase: GenchouCase, frameIndex: number): GenchouCase {
+  return replaceExteriorFrame(genchouCase, frameIndex, null)
 }
 
-function replaceExteriorSlot(
+function replaceExteriorFrame(
   genchouCase: GenchouCase,
-  slotIndex: number,
-  slot: PhotoSlot,
+  frameIndex: number,
+  frame: Frame,
 ): GenchouCase {
-  const exteriorPhotos = [...genchouCase.exteriorPhotos] as ExteriorPhotos
-  exteriorPhotos[slotIndex] = slot
-  return { ...genchouCase, exteriorPhotos }
+  const exteriorFrames = [...genchouCase.exteriorFrames] as ExteriorFrames
+  exteriorFrames[frameIndex] = frame
+  return { ...genchouCase, exteriorFrames }
+}
+
+/** 埋まっている枠の数。あと何枚かを画面に出すために使う。 */
+export function filledExteriorCount(exteriorFrames: ExteriorFrames): number {
+  return exteriorFrames.filter((frame) => frame !== null).length
 }
 
 /** 外観の画面から先へ進めない理由。 */
-export type ExteriorIssue = 'exteriorPhotosIncomplete'
+export type ExteriorIssue = 'exteriorFramesIncomplete'
 
 export type ExteriorReadiness =
   | { canProceed: true }
@@ -90,10 +101,10 @@ export type ExteriorReadiness =
  *
  * 外観は4枚で固定。撮り忘れたまま先へ進まないよう、揃うまで止める。
  */
-export function exteriorReadiness(exteriorPhotos: ExteriorPhotos): ExteriorReadiness {
-  const allFilled = exteriorPhotos.every((slot) => slot !== null)
+export function exteriorReadiness(exteriorFrames: ExteriorFrames): ExteriorReadiness {
+  const allFilled = filledExteriorCount(exteriorFrames) === EXTERIOR_FRAME_COUNT
 
-  return allFilled ? { canProceed: true } : { canProceed: false, issues: ['exteriorPhotosIncomplete'] }
+  return allFilled ? { canProceed: true } : { canProceed: false, issues: ['exteriorFramesIncomplete'] }
 }
 
 export function withCustomerInfo(

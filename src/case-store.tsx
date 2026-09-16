@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { type GenchouCase, beginCase } from '@/src/domain/genchou-case'
 import { recallSurveyorName } from '@/src/storage/last-surveyor'
 import { today } from '@/src/today'
@@ -16,8 +16,13 @@ type CaseStore = {
   genchouCase: GenchouCase | null
   /** 新しい案件を始める。すでに始まっていれば何もしない。 */
   begin: () => void
-  /** 案件モデルの操作で作った次の案件に差し替える。 */
-  update: (next: GenchouCase) => void
+  /**
+   * 案件を書き換える。
+   *
+   * いま持っている案件ではなく、その時点で最新の案件を受け取って次を返す。
+   * 写真の取り込みのように時間のかかる操作が重なっても、先の変更を消さないため。
+   */
+  update: (revise: (current: GenchouCase) => GenchouCase) => void
 }
 
 const CaseContext = createContext<CaseStore | null>(null)
@@ -33,10 +38,11 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
     )
   }, [])
 
-  const store = useMemo(
-    () => ({ genchouCase, begin, update: setGenchouCase }),
-    [genchouCase, begin],
-  )
+  const update = useCallback((revise: (current: GenchouCase) => GenchouCase) => {
+    setGenchouCase((current) => (current === null ? current : revise(current)))
+  }, [])
+
+  const store = useMemo(() => ({ genchouCase, begin, update }), [genchouCase, begin, update])
 
   return <CaseContext.Provider value={store}>{children}</CaseContext.Provider>
 }
@@ -45,23 +51,4 @@ export function useCaseStore(): CaseStore {
   const store = useContext(CaseContext)
   if (store === null) throw new Error('CaseProvider の外では案件を扱えない')
   return store
-}
-
-/**
- * すでに始まっている案件を取り出す。まだ無ければ null を返し、`onMissing` を呼ぶ。
- * 途中の画面をいきなり開かれたときに、顧客情報へ戻すために使う。
- */
-export function useOngoingCase(onMissing: () => void): {
-  genchouCase: GenchouCase | null
-  update: (next: GenchouCase) => void
-} {
-  const { genchouCase, update } = useCaseStore()
-
-  useEffect(() => {
-    if (genchouCase === null) onMissing()
-    // onMissing は毎回作り直される。案件の有無だけを見る。
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [genchouCase])
-
-  return { genchouCase, update }
 }

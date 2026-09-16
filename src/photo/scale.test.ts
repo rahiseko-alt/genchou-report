@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LONG_EDGE, fitWithin } from './scale'
+import { fitWithin } from './scale'
 
 describe('縮小後の大きさ', () => {
   it('横長の写真は幅が長辺に収まる', () => {
@@ -24,9 +24,5 @@ describe('縮小後の大きさ', () => {
 
   it('縮めても1px を下回らない', () => {
     expect(fitWithin({ width: 10000, height: 3 }, 1600)).toEqual({ width: 1600, height: 1 })
-  })
-
-  it('既定の長辺は1600', () => {
-    expect(LONG_EDGE).toBe(1600)
   })
 })

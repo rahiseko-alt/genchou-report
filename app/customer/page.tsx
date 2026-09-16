@@ -40,7 +40,8 @@ export default function CustomerPage() {
   const { customer } = genchouCase
   const readiness = customerInfoReadiness(customer)
 
-  const edit = (patch: Partial<CustomerInfo>) => update(withCustomerInfo(genchouCase, patch))
+  const edit = (patch: Partial<CustomerInfo>) =>
+    update((current) => withCustomerInfo(current, patch))
 
   const goNext = () => {
     if (!readiness.canProceed) return
