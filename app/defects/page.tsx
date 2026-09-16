@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { ScreenSkeleton } from '@/src/ui/ScreenSkeleton'
+import { Suspense, useEffect, useState } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import {
   DEFECT_FRAMES_PER_PAGE,
@@ -29,7 +30,7 @@ const ISSUE_MESSAGES: Record<FinishIssue, string> = {
   noDefectPhotos: '不具合写真を1枚以上入れると完了できます',
 }
 
-export default function DefectsPage() {
+function DefectsScreen() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { genchouCase, ready, update } = useCaseStore()
@@ -167,5 +168,17 @@ export default function DefectsPage() {
         )}
       </div>
     </main>
+  )
+}
+
+/**
+ * URL に添えられた指定（やり直しの行き先やページ番号）を読むため、
+ * 画面は待ち受けの中に置く。整うまでは見出しだけを出す。
+ */
+export default function DefectsPage() {
+  return (
+    <Suspense fallback={<ScreenSkeleton title="不具合写真" />}>
+      <DefectsScreen />
+    </Suspense>
   )
 }

@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { ScreenSkeleton } from '@/src/ui/ScreenSkeleton'
+import { Suspense, useEffect, useState } from 'react'
 import { useCaseStore } from '@/src/case-store'
 import {
   EXTERIOR_FRAME_COUNT,
@@ -24,7 +25,7 @@ const ISSUE_MESSAGES: Record<ExteriorIssue, string> = {
 
 const frameLabel = (position: number) => `外観写真 ${position}枚目`
 
-export default function ExteriorPage() {
+function ExteriorScreen() {
   const router = useRouter()
   const searchParams = useSearchParams()
   // やり直しから来たときは、一足でプレビューへ戻れるようにする。
@@ -109,5 +110,17 @@ export default function ExteriorPage() {
         </button>
       </div>
     </main>
+  )
+}
+
+/**
+ * URL に添えられた指定（やり直しの行き先やページ番号）を読むため、
+ * 画面は待ち受けの中に置く。整うまでは見出しだけを出す。
+ */
+export default function ExteriorPage() {
+  return (
+    <Suspense fallback={<ScreenSkeleton title="外観写真" />}>
+      <ExteriorScreen />
+    </Suspense>
   )
 }

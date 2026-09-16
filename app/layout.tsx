@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { APP_DESCRIPTION, APP_NAME, BRAND_COLOR } from '@/src/branding'
 import { CaseProvider } from '@/src/case-store'
+import { RegisterServiceWorker } from '@/src/pwa/register-sw'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body>
+        <RegisterServiceWorker />
         <CaseProvider>{children}</CaseProvider>
       </body>
     </html>
