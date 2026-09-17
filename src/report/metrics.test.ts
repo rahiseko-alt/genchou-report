@@ -14,7 +14,7 @@ describe('報告書の寸法', () => {
       m.margin * 2 +
       m.headingHeight +
       m.sectionTitleHeight +
-      m.exteriorCellHeight * 2 +
+      (m.exteriorCellHeight + m.exteriorLabelHeight) * 2 +
       m.gap + // 外観2行の隙間
       m.gap + // 外観と不具合の間
       m.sectionTitleHeight +

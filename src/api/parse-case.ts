@@ -1,10 +1,12 @@
 import {
   DEFECT_FRAMES_PER_PAGE,
   DEFECT_STATUSES,
+  DEFAULT_EXTERIOR_LABELS,
   EXTERIOR_FRAME_COUNT,
   type CustomerInfo,
   type DefectFrame,
   type DefectPage,
+  type ExteriorLabels,
   type GenchouCase,
   type Photo,
   type StatusId,
@@ -43,6 +45,7 @@ export type SerializedDefectFrame = {
 export type SerializedCase = {
   customer: CustomerInfo
   exteriorFrames: (SerializedPhoto | null)[]
+  exteriorLabels: string[]
   defectPages: SerializedDefectFrame[][]
 }
 
@@ -52,6 +55,7 @@ export function parseCase(body: unknown): GenchouCase {
   const genchouCase: GenchouCase = {
     customer: parseCustomer(raw.customer),
     exteriorFrames: parseExteriorFrames(raw.exteriorFrames),
+    exteriorLabels: parseExteriorLabels(raw.exteriorLabels),
     defectPages: parseDefectPages(raw.defectPages),
   }
 
@@ -101,6 +105,16 @@ function parseExteriorFrames(value: unknown): GenchouCase['exteriorFrames'] {
   }
   return value.map((frame) => (frame === null ? null : parsePhoto(frame))) as
     GenchouCase['exteriorFrames']
+}
+
+/** 見出しが欠けていたり空だったりすれば、もとの見出しで補う。 */
+function parseExteriorLabels(value: unknown): ExteriorLabels {
+  if (!Array.isArray(value)) return [...DEFAULT_EXTERIOR_LABELS] as ExteriorLabels
+
+  return DEFAULT_EXTERIOR_LABELS.map((fallback, index) => {
+    const label = value[index]
+    return typeof label === 'string' && label.trim() !== '' ? label.trim() : fallback
+  }) as ExteriorLabels
 }
 
 function parseDefectPages(value: unknown): DefectPage[] {

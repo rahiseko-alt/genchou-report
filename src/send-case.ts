@@ -20,6 +20,7 @@ export function serializeCase(genchouCase: GenchouCase): SerializedCase {
     exteriorFrames: genchouCase.exteriorFrames.map((frame) =>
       frame === null ? null : serializePhoto(frame),
     ),
+    exteriorLabels: [...genchouCase.exteriorLabels],
     defectPages: genchouCase.defectPages.map((page) =>
       page.map((frame) =>
         frame === null

@@ -12,12 +12,15 @@ import type { CustomerInfo, DefectEntry, GenchouCase, Photo } from '@/src/domain
 /** 1ページ目の上部に載せる顧客情報。2ページ目以降は null。 */
 export type ReportHeading = CustomerInfo
 
+/** 外観写真1枚と、その枠の見出し。 */
+export type ExteriorItem = { photo: Photo; label: string }
+
 export type ReportPage = {
   /** 1 から数えたページ番号。 */
   number: number
   heading: ReportHeading | null
   /** 1ページ目だけが持つ。2ページ目以降は空。 */
-  exterior: Photo[]
+  exterior: ExteriorItem[]
   defects: DefectEntry[]
 }
 
@@ -30,7 +33,9 @@ export type ReportPlan = {
 export const DEFECTS_PER_REPORT_PAGE = 4
 
 export function planReport(genchouCase: GenchouCase): ReportPlan {
-  const exterior = genchouCase.exteriorFrames.filter((frame) => frame !== null)
+  const exterior = genchouCase.exteriorFrames
+    .map((photo, index) => ({ photo, label: genchouCase.exteriorLabels[index] }))
+    .filter((item): item is ExteriorItem => item.photo !== null)
   // 入れた枠の順のまま、ページをまたいで1本に並べ直す。埋まっていない枠は飛ばす。
   const defects = genchouCase.defectPages.flatMap((page) =>
     page.filter((frame) => frame !== null),

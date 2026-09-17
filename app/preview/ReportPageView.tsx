@@ -43,7 +43,10 @@ const SHEET_STYLE = Object.fromEntries(
 ) as React.CSSProperties
 
 export function ReportPageView({ page, pageCount }: { page: ReportPage; pageCount: number }) {
-  const photos = [...page.exterior, ...page.defects.map((entry) => entry.photo)]
+  const photos = [
+    ...page.exterior.map((item) => item.photo),
+    ...page.defects.map((entry) => entry.photo),
+  ]
   const urls = usePhotoUrls(photos)
 
   return (
@@ -80,13 +83,15 @@ export function ReportPageView({ page, pageCount }: { page: ReportPage; pageCoun
         <>
           <h3 className={styles.sectionTitle}>外観</h3>
           <div className={styles.exteriorGrid}>
-            {page.exterior.map((photo, index) => (
-              <img
-                key={photo.id}
-                className={styles.exteriorPhoto}
-                src={urls.get(photo.id)}
-                alt={`外観写真 ${index + 1}枚目`}
-              />
+            {page.exterior.map((item, index) => (
+              <figure key={item.photo.id} className={styles.exteriorCell}>
+                <img
+                  className={styles.exteriorPhoto}
+                  src={urls.get(item.photo.id)}
+                  alt={`外観写真 ${index + 1}枚目`}
+                />
+                <figcaption className={styles.exteriorLabel}>{item.label}</figcaption>
+              </figure>
             ))}
           </div>
         </>

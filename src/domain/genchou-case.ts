@@ -36,6 +36,16 @@ export type ExteriorFrames = [Frame, Frame, Frame, Frame]
 
 export const EXTERIOR_FRAME_COUNT = 4
 
+/**
+ * 外観の枠の見出し。撮る向きの目安であり、報告書にもこの言葉が載る。
+ *
+ * 現場によって呼び方が違うので、担当者が枠ごとに書き換えられる。
+ * 空にするとここへ戻る。
+ */
+export const DEFAULT_EXTERIOR_LABELS = ['正面', '右', '左', '裏'] as const
+
+export type ExteriorLabels = [string, string, string, string]
+
 /** 不具合写真1枚と、それに付けたステータスと補足。 */
 export type DefectEntry = {
   photo: Photo
@@ -58,6 +68,8 @@ export type GenchouCase = {
   customer: CustomerInfo
   /** 並び順がそのまま報告書の並び順になる。 */
   exteriorFrames: ExteriorFrames
+  /** 枠ごとの見出し。`exteriorFrames` と同じ並び。 */
+  exteriorLabels: ExteriorLabels
   /** 1ページ以上。並び順がそのまま報告書の並び順になる。 */
   defectPages: DefectPage[]
 }
@@ -78,6 +90,7 @@ export function beginCase({
       surveyorName: lastSurveyorName,
     },
     exteriorFrames: emptyExteriorFrames(),
+    exteriorLabels: [...DEFAULT_EXTERIOR_LABELS] as ExteriorLabels,
     defectPages: [emptyDefectPage()],
   }
 }
@@ -106,6 +119,18 @@ function replaceExteriorFrame(
   const exteriorFrames = [...genchouCase.exteriorFrames] as ExteriorFrames
   exteriorFrames[frameIndex] = frame
   return { ...genchouCase, exteriorFrames }
+}
+
+export function withExteriorLabel(
+  genchouCase: GenchouCase,
+  frameIndex: number,
+  label: string,
+): GenchouCase {
+  const exteriorLabels = [...genchouCase.exteriorLabels] as ExteriorLabels
+  // 空にされたら、もとの見出しへ戻す。見出しの無い写真を報告書に出さないため。
+  exteriorLabels[frameIndex] =
+    label.trim() === '' ? DEFAULT_EXTERIOR_LABELS[frameIndex] : label.trim()
+  return { ...genchouCase, exteriorLabels }
 }
 
 /** 埋まっている枠の数。あと何枚かを画面に出すために使う。 */

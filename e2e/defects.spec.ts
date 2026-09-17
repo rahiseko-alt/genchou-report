@@ -4,6 +4,9 @@ import { type Page, expect, test } from '@playwright/test'
 const WIDE = join(import.meta.dirname, 'fixtures/exterior-wide.jpg')
 const DEFECT_A = join(import.meta.dirname, 'fixtures/defect-a.jpg')
 
+/** 外観の枠は見出し（正面・右・左・裏）で押す。 */
+const EXTERIOR_LABELS = ['正面', '右', '左', '裏']
+
 /** 顧客情報と外観4枚を埋めて、不具合ページまで進む。 */
 async function openDefects(page: Page) {
   await page.goto('/customer')
@@ -14,7 +17,7 @@ async function openDefects(page: Page) {
   for (const position of [1, 2, 3, 4]) {
     const [chooser] = await Promise.all([
       page.waitForEvent('filechooser'),
-      page.getByRole('button', { name: `${position}枚目を撮る` }).click(),
+      page.getByRole('button', { name: `${EXTERIOR_LABELS[position - 1]}を撮る` }).click(),
     ])
     await chooser.setFiles(WIDE)
     await expect(page.getByRole('img', { name: `外観写真 ${position}枚目` })).toBeVisible()

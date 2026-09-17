@@ -115,7 +115,13 @@ describe('報告書の割り付け', () => {
   it('外観の並び順が、枠の順のまま保たれる', () => {
     const plan = planReport(caseWithDefects(4))
 
-    expect(plan.pages[0].exterior.map((each) => each.id)).toEqual(['e0', 'e1', 'e2', 'e3'])
+    expect(plan.pages[0].exterior.map((item) => item.photo.id)).toEqual(['e0', 'e1', 'e2', 'e3'])
+  })
+
+  it('外観に枠の見出しが付いて運ばれる', () => {
+    const plan = planReport(caseWithDefects(4))
+
+    expect(plan.pages[0].exterior.map((item) => item.label)).toEqual(['正面', '右', '左', '裏'])
   })
 
   it('ステータスと補足が写真に付いたまま運ばれる', () => {

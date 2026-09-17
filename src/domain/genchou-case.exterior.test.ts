@@ -4,6 +4,7 @@ import {
   beginCase,
   exteriorReadiness,
   filledExteriorCount,
+  withExteriorLabel,
   withExteriorPhoto,
   withoutExteriorPhoto,
 } from './genchou-case'
@@ -88,5 +89,35 @@ describe('外観の画面から次へ進めるか', () => {
     const filled = withPhotos(0, 1, 3)
 
     expect(exteriorReadiness(filled.exteriorFrames).canProceed).toBe(false)
+  })
+})
+
+describe('外観の枠の見出し', () => {
+  it('正面・右・左・裏で始まる', () => {
+    expect(started.exteriorLabels).toEqual(['正面', '右', '左', '裏'])
+  })
+
+  it('書き換えられる', () => {
+    const renamed = withExteriorLabel(started, 2, '北側の壁')
+
+    expect(renamed.exteriorLabels[2]).toBe('北側の壁')
+  })
+
+  it('他の枠の見出しは変わらない', () => {
+    const renamed = withExteriorLabel(started, 0, '玄関')
+
+    expect(renamed.exteriorLabels[1]).toBe('右')
+  })
+
+  it('空にすると、もとの見出しに戻る', () => {
+    const cleared = withExteriorLabel(withExteriorLabel(started, 1, '東'), 1, '  ')
+
+    expect(cleared.exteriorLabels[1]).toBe('右')
+  })
+
+  it('書き換えても元の案件は変わらない', () => {
+    withExteriorLabel(started, 0, '玄関')
+
+    expect(started.exteriorLabels[0]).toBe('正面')
   })
 })

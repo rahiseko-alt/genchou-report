@@ -5,10 +5,15 @@ const WIDE = join(import.meta.dirname, 'fixtures/exterior-wide.jpg')
 const ROTATED = join(import.meta.dirname, 'fixtures/exterior-rotated.jpg')
 const DEFECT_A = join(import.meta.dirname, 'fixtures/defect-a.jpg')
 
+/** 外観の枠は見出し（正面・右・左・裏）で押す。不具合は何枚目かで押す。 */
+const EXTERIOR_LABELS = ['正面', '右', '左', '裏']
+const takeName = (position: number, label: string) =>
+  label === '外観写真' ? `${EXTERIOR_LABELS[position - 1]}を撮る` : `${position}枚目を撮る`
+
 async function shoot(page: Page, position: number, file: string, label: string) {
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: `${position}枚目を撮る` }).click(),
+    page.getByRole('button', { name: takeName(position, label) }).click(),
   ])
   await chooser.setFiles(file)
   await expect(page.getByRole('img', { name: `${label} ${position}枚目` })).toBeVisible()

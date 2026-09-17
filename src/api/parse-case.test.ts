@@ -16,6 +16,7 @@ function body(): SerializedCase {
       surveyorName: '鈴木',
     },
     exteriorFrames: [photo('e0'), photo('e1'), photo('e2'), photo('e3')],
+    exteriorLabels: ['正面', '右', '左', '裏'],
     defectPages: [[{ photo: photo('d0'), statuses: ['A'], note: '外壁のひび割れ' }, null, null, null]],
   }
 }

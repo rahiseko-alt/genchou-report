@@ -32,6 +32,40 @@
   gap: 16px;
 }
 
+.frameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 見出しは報告書にも載る。書き換えられることが分かるよう、入力欄として出す。 */
+.frameLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.frameLabelText {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.frameLabelInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  /* 16px を下回ると iOS が入力時に画面を勝手に拡大する。 */
+  font-size: 16px;
+}
+
+.frameLabelInput:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
 .foot {
   margin-top: auto;
   display: flex;

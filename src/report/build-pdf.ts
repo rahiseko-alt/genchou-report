@@ -20,6 +20,7 @@ const {
   headingHeight: HEADING_HEIGHT,
   sectionTitleHeight: SECTION_TITLE_HEIGHT,
   exteriorCellHeight: EXTERIOR_CELL_HEIGHT,
+  exteriorLabelHeight: EXTERIOR_LABEL_HEIGHT,
   defectPhotoHeight: DEFECT_PHOTO_HEIGHT,
   defectTextHeight: DEFECT_TEXT_HEIGHT,
 } = REPORT_METRICS
@@ -75,21 +76,32 @@ async function drawPage(
 
   if (plan.exterior.length > 0) {
     top = drawSectionTitle(page, font, '外観', top)
-    for (const [index, photo] of plan.exterior.entries()) {
+    const cellHeight = EXTERIOR_CELL_HEIGHT + EXTERIOR_LABEL_HEIGHT
+    for (const [index, item] of plan.exterior.entries()) {
       const column = index % 2
       const row = Math.floor(index / 2)
+      const x = MARGIN + column * (cellWidth + GAP)
+      const cellTop = top - row * (cellHeight + GAP)
+
       await drawPhoto(
         pdf,
         page,
-        photo,
-        MARGIN + column * (cellWidth + GAP),
-        top - (row + 1) * EXTERIOR_CELL_HEIGHT - row * GAP,
+        item.photo,
+        x,
+        cellTop - EXTERIOR_CELL_HEIGHT,
         cellWidth,
         EXTERIOR_CELL_HEIGHT,
       )
+      page.drawText(item.label, {
+        x,
+        y: cellTop - EXTERIOR_CELL_HEIGHT - 10,
+        size: 8,
+        font,
+        color: MUTED,
+      })
     }
     const rows = Math.ceil(plan.exterior.length / 2)
-    top -= rows * EXTERIOR_CELL_HEIGHT + (rows - 1) * GAP + GAP
+    top -= rows * cellHeight + (rows - 1) * GAP + GAP
   }
 
   if (plan.defects.length > 0) {

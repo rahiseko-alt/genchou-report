@@ -14,7 +14,9 @@ export const REPORT_METRICS = {
   headingHeight: 85,
   sectionTitleHeight: 18,
   /** 外観は不具合より小さい。報告書の中身は不具合のほうだから。 */
-  exteriorCellHeight: 115,
+  exteriorCellHeight: 103,
+  /** 外観写真の下に置く見出し（正面・右・左・裏）のぶん。 */
+  exteriorLabelHeight: 12,
   defectPhotoHeight: 150,
   /** 不具合写真の下に置くステータスと補足のぶん。 */
   defectTextHeight: 32,
@@ -41,6 +43,7 @@ export function metricsAsPercentOfContentWidth(): Record<string, number> {
     headingHeight: asPercent(REPORT_METRICS.headingHeight),
     sectionTitleHeight: asPercent(REPORT_METRICS.sectionTitleHeight),
     exteriorCellHeight: asPercent(REPORT_METRICS.exteriorCellHeight),
+    exteriorLabelHeight: asPercent(REPORT_METRICS.exteriorLabelHeight),
     defectPhotoHeight: asPercent(REPORT_METRICS.defectPhotoHeight),
     defectTextHeight: asPercent(REPORT_METRICS.defectTextHeight),
   }

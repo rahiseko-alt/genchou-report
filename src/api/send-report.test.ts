@@ -34,6 +34,7 @@ function requestBody(defectCount = 4): SendRequestBody {
       surveyorName: '鈴木',
     },
     exteriorFrames: [photo('e0'), photo('e1'), photo('e2'), photo('e3')],
+    exteriorLabels: ['正面', '右', '左', '裏'],
     defectPages: pages,
   }
 }

@@ -9,6 +9,7 @@ import {
   type ExteriorIssue,
   exteriorReadiness,
   filledExteriorCount,
+  withExteriorLabel,
   withExteriorPhoto,
   withoutExteriorPhoto,
 } from '@/src/domain/genchou-case'
@@ -79,17 +80,29 @@ function ExteriorScreen() {
 
       <div className={styles.frames}>
         {exteriorFrames.map((photo, frameIndex) => (
-          <PhotoFrame
-            // 枠は4つで固定、並び順がそのまま報告書の順になる。
-            key={frameIndex}
-            takeLabel={`${frameIndex + 1}枚目を撮る`}
-            attachLabel={`${frameIndex + 1}枚目を画像から選ぶ`}
-            label={frameLabel(frameIndex + 1)}
-            photo={photo}
-            failed={failedFrames.has(frameIndex)}
-            onPick={(file) => void pick(frameIndex, file)}
-            onRemove={() => update((current) => withoutExteriorPhoto(current, frameIndex))}
-          />
+          // 枠は4つで固定、並び順がそのまま報告書の順になる。
+          <div key={frameIndex} className={styles.frameCell}>
+            <PhotoFrame
+              takeLabel={`${genchouCase.exteriorLabels[frameIndex]}を撮る`}
+              attachLabel={`${frameIndex + 1}枚目を画像から選ぶ`}
+              label={frameLabel(frameIndex + 1)}
+              photo={photo}
+              failed={failedFrames.has(frameIndex)}
+              onPick={(file) => void pick(frameIndex, file)}
+              onRemove={() => update((current) => withoutExteriorPhoto(current, frameIndex))}
+            />
+            <label className={styles.frameLabel}>
+              <span className={styles.frameLabelText}>{frameIndex + 1}枚目の見出し</span>
+              <input
+                className={styles.frameLabelInput}
+                value={genchouCase.exteriorLabels[frameIndex]}
+                onChange={(event) =>
+                  update((current) => withExteriorLabel(current, frameIndex, event.target.value))
+                }
+                autoComplete="off"
+              />
+            </label>
+          </div>
         ))}
       </div>
 
