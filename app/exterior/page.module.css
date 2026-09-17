@@ -1,0 +1,104 @@
+.main {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  color: var(--brand);
+}
+
+.count {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.frames {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.frameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 見出しは報告書にも載る。書き換えられることが分かるよう、入力欄として出す。 */
+.frameLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.frameLabelText {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.frameLabelInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  /* 16px を下回ると iOS が入力時に画面を勝手に拡大する。 */
+  font-size: 16px;
+}
+
+.frameLabelInput:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.frameError {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--danger);
+}
+
+.next {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.next:disabled {
+  background: var(--line);
+  color: var(--ink-muted);
+}
